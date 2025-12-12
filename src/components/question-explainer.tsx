@@ -3,7 +3,7 @@
 import { getExplanation, getTranscription } from '@/app/actions';
 import type { Explanation } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, LoaderCircle, Mic, Send, StopCircle } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Mic, Send, StopCircle, Sparkles } from 'lucide-react';
 import { useState, useTransition, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -115,7 +115,7 @@ export function QuestionExplainer() {
   const isProcessingAudio = isRecording || isTranscribing;
 
   return (
-    <Card>
+    <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           Ask a WAEC Question
@@ -162,7 +162,7 @@ export function QuestionExplainer() {
                 <span className="sm:hidden">{isRecording ? 'Stop Recording' : 'Record Audio'}</span>
                  <span className="hidden sm:inline">{isRecording ? 'Stop' : 'Record'}</span>
               </Button>
-              <Button type="submit" disabled={isPending || isProcessingAudio} className="w-full">
+              <Button type="submit" disabled={isPending || isProcessingAudio} className="w-full font-semibold">
                 {isPending ? (
                   <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -175,7 +175,7 @@ export function QuestionExplainer() {
         </Form>
 
         {isPending && (
-          <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg">
+          <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg bg-muted/50">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
             <p className="font-medium text-lg">Our AI Tutor is thinking...</p>
             <p className="text-muted-foreground">Please wait a moment while we prepare your explanation.</p>
