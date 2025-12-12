@@ -5,8 +5,6 @@ export const Icons = {
   logo: (props: LucideProps) => (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -15,10 +13,15 @@ export const Icons = {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M22 10.5V12a10 10 0 1 1-5.93-9.14" />
-      <path d="M9 11a3 3 0 0 1 5.64-1.59" />
-      <path d="m22 2-5 5" />
-      <path d="m17 2 5 5" />
+      <defs>
+        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: 'hsl(var(--accent))', stopOpacity: 1 }} />
+        </linearGradient>
+      </defs>
+      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="url(#grad1)" />
+      <path d="M2 17l10 5 10-5"  stroke="url(#grad1)" />
+      <path d="M2 12l10 5 10-5" stroke="url(#grad1)" />
     </svg>
   ),
   math: Calculator,
