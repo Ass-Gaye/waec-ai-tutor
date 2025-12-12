@@ -3,7 +3,7 @@
 import { getExplanation, getTranscription } from '@/app/actions';
 import type { Explanation } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, LoaderCircle, Mic, Send, Sparkles, StopCircle } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Mic, Send, StopCircle } from 'lucide-react';
 import { useState, useTransition, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -118,7 +118,6 @@ export function QuestionExplainer() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
-          <Sparkles className="text-primary" />
           Ask a WAEC Question
         </CardTitle>
         <CardDescription className="text-sm">
