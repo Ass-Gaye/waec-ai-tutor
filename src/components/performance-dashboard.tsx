@@ -46,7 +46,7 @@ export function PerformanceDashboard({ history }: PerformanceDashboardProps) {
     }, [history]);
 
     return (
-        <Card className="animate-in fade-in-50 duration-500">
+        <Card className="animate-in fade-in-50 duration-500 bg-card/80 border-white/10 backdrop-blur-sm">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                     <Award className="text-primary" />
@@ -59,7 +59,7 @@ export function PerformanceDashboard({ history }: PerformanceDashboardProps) {
             <CardContent className="space-y-6">
                 <div className="text-center">
                     <p className="text-sm text-muted-foreground">Overall Average Score</p>
-                    <p className="text-4xl font-bold">{overallAverage}%</p>
+                    <p className="text-4xl font-bold bg-gradient-to-r from-primary to-purple-400 text-transparent bg-clip-text">{overallAverage}%</p>
                 </div>
                 <div>
                     <h3 className="text-center font-semibold mb-4 text-muted-foreground">Average Score by Subject</h3>
@@ -67,11 +67,11 @@ export function PerformanceDashboard({ history }: PerformanceDashboardProps) {
                         <div className="w-full h-[250px]">
                             <ChartContainer config={chartConfig} className="w-full h-full">
                                 <BarChart accessibilityLayer data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
                                     <XAxis dataKey="subject" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
-                                    <YAxis unit="%" allowDecimals={false} />
+                                    <YAxis unit="%" allowDecimals={false} width={30} />
                                     <Tooltip
-                                        cursor={{ fill: 'hsl(var(--muted))' }}
+                                        cursor={{ fill: 'hsl(var(--accent))' }}
                                         content={<ChartTooltipContent indicator="dot" />}
                                     />
                                     <Bar dataKey="averageScore" name="Avg. Score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />

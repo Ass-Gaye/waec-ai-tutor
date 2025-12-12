@@ -32,6 +32,7 @@ export function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
   const totalQuestions = quiz.questions.length;
 
   const handleSelectAnswer = (optionIndex: number) => {
+    if (isSubmitted) return;
     const newSelectedAnswers = [...selectedAnswers];
     newSelectedAnswers[currentQuestionIndex] = optionIndex;
     setSelectedAnswers(newSelectedAnswers);
@@ -65,14 +66,14 @@ export function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
   
   if (isSubmitted) {
     return (
-        <Card className="animate-in fade-in-50 duration-500">
+        <Card className="animate-in fade-in-50 duration-500 bg-card/80 border-white/10 backdrop-blur-sm">
             <CardHeader>
                 <CardTitle>Quiz Results: {quiz.subject}</CardTitle>
                 <CardDescription>You scored {score} out of {totalQuestions}!</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div className="text-center space-y-2">
-                    <p className="text-5xl font-bold">{(score / totalQuestions * 100).toFixed(0)}%</p>
+                    <p className="text-5xl font-bold bg-gradient-to-r from-primary to-purple-400 text-transparent bg-clip-text">{(score / totalQuestions * 100).toFixed(0)}%</p>
                     <Progress value={(score / totalQuestions) * 100} className="w-full" />
                 </div>
                 <div className="max-h-[400px] overflow-y-auto space-y-4 pr-2">
@@ -80,14 +81,14 @@ export function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
                         <div key={index}>
                             <div className="flex items-start gap-3">
                                 {answerStates[index] === 'correct' ? 
-                                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-1" /> :
-                                    <XCircle className="h-5 w-5 text-destructive mt-1" />
+                                    <CheckCircle2 className="h-5 w-5 text-green-500 mt-1 flex-shrink-0" /> :
+                                    <XCircle className="h-5 w-5 text-destructive mt-1 flex-shrink-0" />
                                 }
                                 <p className="font-medium flex-1">{q.question}</p>
                             </div>
-                            <Alert className="mt-2 text-sm bg-muted/50">
+                            <Alert className="mt-2 text-sm bg-muted/50 border-white/10">
                                 <BookOpen className="h-4 w-4" />
-                                <AlertTitle>Explanation</AlertTitle>
+                                <AlertTitle className="text-foreground/80">Explanation</AlertTitle>
                                 <AlertDescription>{q.explanation}</AlertDescription>
                             </Alert>
                         </div>
@@ -102,7 +103,7 @@ export function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
   }
 
   return (
-    <Card className="animate-in fade-in-50 duration-500">
+    <Card className="animate-in fade-in-50 duration-500 bg-card/80 border-white/10 backdrop-blur-sm">
       <CardHeader>
         <CardTitle>
           {quiz.subject} Quiz
@@ -117,12 +118,14 @@ export function QuizTaker({ quiz, onComplete }: QuizTakerProps) {
         <RadioGroup
           value={selectedAnswers[currentQuestionIndex]?.toString()}
           onValueChange={(value) => handleSelectAnswer(parseInt(value))}
+          className="space-y-2"
         >
           {currentQuestion.options.map((option, index) => (
-            <div key={index} className="flex items-center space-x-2">
+            <Label key={index} htmlFor={`option-${index}`} 
+              className={`flex items-center space-x-3 p-4 rounded-md border transition-all cursor-pointer ${selectedAnswers[currentQuestionIndex] === index ? 'border-primary bg-primary/10' : 'border-border hover:bg-accent/50'}`}>
               <RadioGroupItem value={index.toString()} id={`option-${index}`} />
-              <Label htmlFor={`option-${index}`} className="flex-1 text-base font-normal">{option}</Label>
-            </div>
+              <span className="flex-1 text-base font-normal">{option}</span>
+            </Label>
           ))}
         </RadioGroup>
       </CardContent>

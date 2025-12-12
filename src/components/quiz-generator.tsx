@@ -4,7 +4,7 @@ import { getQuiz } from '@/app/actions';
 import type { Quiz, QuizPerformance } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, BookCopy, LoaderCircle } from 'lucide-react';
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
@@ -69,7 +69,7 @@ export function QuizGenerator() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="shadow-lg bg-card/80 border border-white/10 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
             <BookCopy className="text-primary" />
@@ -91,7 +91,7 @@ export function QuizGenerator() {
                       <FormLabel>Subject</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-transparent/20">
                             <SelectValue placeholder="Select a subject..." />
                           </SelectTrigger>
                         </FormControl>
@@ -117,7 +117,7 @@ export function QuizGenerator() {
                     <FormItem>
                       <FormLabel>Number of Questions</FormLabel>
                       <FormControl>
-                        <Input type="number" min="1" max="10" {...field} />
+                        <Input type="number" min="1" max="10" {...field} className="bg-transparent/20"/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -134,7 +134,7 @@ export function QuizGenerator() {
       </Card>
       
       {isPending && (
-        <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg">
+        <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed border-white/20 rounded-lg">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
             <p className="font-medium text-lg">Generating your quiz...</p>
             <p className="text-muted-foreground">This might take a few seconds. Good luck!</p>

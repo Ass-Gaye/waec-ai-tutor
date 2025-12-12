@@ -64,7 +64,7 @@ export function ExplanationDisplay({ data }: ExplanationDisplayProps) {
   }, []);
 
   return (
-    <Card className="mt-6 animate-in fade-in-50 duration-500">
+    <Card className="mt-6 animate-in fade-in-50 duration-500 bg-card/80 border-white/10 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="text-xl">Here's the explanation</CardTitle>
       </CardHeader>
@@ -75,7 +75,7 @@ export function ExplanationDisplay({ data }: ExplanationDisplayProps) {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <div className="prose prose-sm sm:prose-base max-w-none">
+        <div className="prose prose-sm sm:prose-base max-w-none prose-invert prose-p:text-foreground/80 prose-strong:text-foreground">
           <MarkdownRenderer text={currentExplanation} />
         </div>
       </CardContent>

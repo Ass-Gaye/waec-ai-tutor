@@ -3,7 +3,7 @@
 import { getExplanation, getTranscription } from '@/app/actions';
 import type { Explanation } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, LoaderCircle, Mic, Send, StopCircle, Sparkles } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Mic, Send, StopCircle } from 'lucide-react';
 import { useState, useTransition, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -56,7 +56,7 @@ export function QuestionExplainer() {
   const handleStartRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType: 'audio/webm' });
       audioChunksRef.current = [];
 
       mediaRecorderRef.current.addEventListener('dataavailable', (event) => {
@@ -115,12 +115,12 @@ export function QuestionExplainer() {
   const isProcessingAudio = isRecording || isTranscribing;
 
   return (
-    <Card className="shadow-lg">
+    <Card className="shadow-lg bg-card/80 border border-white/10 backdrop-blur-sm">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           Ask a WAEC Question
         </CardTitle>
-        <CardDescription className="text-sm">
+        <CardDescription className="text-sm text-muted-foreground">
           Type your question below, or use the microphone to ask it out loud.
         </CardDescription>
       </CardHeader>
@@ -135,7 +135,7 @@ export function QuestionExplainer() {
                   <FormControl>
                     <Textarea
                       placeholder="e.g., 'If x - 2 is a factor of x² + 2x - k, what is the value of k?'"
-                      className="resize-none min-h-[120px] text-base"
+                      className="resize-none min-h-[120px] text-base bg-transparent/20"
                       {...field}
                     />
                   </FormControl>
@@ -175,7 +175,7 @@ export function QuestionExplainer() {
         </Form>
 
         {isPending && (
-          <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg bg-muted/50">
+          <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed border-white/20 rounded-lg bg-muted/50">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
             <p className="font-medium text-lg">Our AI Tutor is thinking...</p>
             <p className="text-muted-foreground">Please wait a moment while we prepare your explanation.</p>
