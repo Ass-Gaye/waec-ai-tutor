@@ -1,5 +1,5 @@
 import type { LucideProps } from 'lucide-react';
-import { Atom, BookOpen, Calculator, Dna, FlaskConical, Sparkles } from 'lucide-react';
+import { Atom, BookOpen, Calculator, Dna, FlaskConical } from 'lucide-react';
 
 export const Icons = {
   logo: (props: LucideProps) => (
@@ -13,11 +13,17 @@ export const Icons = {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="m12 3-1.9 4.1-4.1 1.9 4.1 1.9 1.9 4.1 1.9-4.1 4.1-1.9-4.1-1.9Z" />
-      <path d="M3 12h2" />
-      <path d="M19 12h2" />
-      <path d="M12 3v2" />
-      <path d="M12 19v2" />
+      <defs>
+        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{ stopColor: 'hsl(var(--primary))', stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: 'hsl(var(--primary) / 0.5)', stopOpacity: 1 }} />
+        </linearGradient>
+      </defs>
+      <path d="M12 2L2 7l10 5 10-5-10-5z" fill="url(#logo-gradient)" stroke="none" />
+      <path d="M2 17l10 5 10-5" />
+      <path d="M2 12l10 5 10-5" />
+      <path d="M12 22V12" />
+      <circle cx="12" cy="12" r="3" strokeWidth="1.5" className="text-primary-foreground" fill="hsl(var(--background))" />
     </svg>
   ),
   math: Calculator,
