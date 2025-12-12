@@ -5,11 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
 import { useMemo } from "react";
 import { Award } from "lucide-react";
-import { ChartTooltipContent } from "./ui/chart";
+import { ChartContainer, ChartTooltipContent, type ChartConfig } from "./ui/chart";
 
 interface PerformanceDashboardProps {
     history: QuizPerformance[];
 }
+
+const chartConfig = {
+    averageScore: {
+        label: "Avg. Score",
+        color: "hsl(var(--primary))",
+    },
+} satisfies ChartConfig;
+
 
 export function PerformanceDashboard({ history }: PerformanceDashboardProps) {
 
@@ -57,10 +65,10 @@ export function PerformanceDashboard({ history }: PerformanceDashboardProps) {
                     <h3 className="text-center font-semibold mb-4 text-muted-foreground">Average Score by Subject</h3>
                     {chartData.length > 0 ? (
                         <div className="w-full h-[250px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                            <ChartContainer config={chartConfig} className="w-full h-full">
+                                <BarChart accessibilityLayer data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                    <XAxis dataKey="subject" tick={{ fontSize: 12 }} />
+                                    <XAxis dataKey="subject" tick={{ fontSize: 12 }} tickLine={false} axisLine={false} />
                                     <YAxis unit="%" allowDecimals={false} />
                                     <Tooltip
                                         cursor={{ fill: 'hsl(var(--muted))' }}
@@ -68,7 +76,7 @@ export function PerformanceDashboard({ history }: PerformanceDashboardProps) {
                                     />
                                     <Bar dataKey="averageScore" name="Avg. Score" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                                 </BarChart>
-                            </ResponsiveContainer>
+                            </ChartContainer>
                         </div>
                     ) : (
                         <p className="text-center text-muted-foreground">No data yet. Take a quiz to see your progress!</p>
