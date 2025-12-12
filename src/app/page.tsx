@@ -14,7 +14,7 @@ export default function Home() {
           <Tabs defaultValue="explainer" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-primary/10 rounded-lg">
               <TabsTrigger value="explainer" className="text-sm sm:text-base">Explain a Question</TabsTrigger>
-              <TabsTrigger value="quiz" className="text-sm sm:text-base">Generate a Quiz</TabsTrigger>
+              <TabsTrigger value="quiz" className="text-sm sm:text-base">Practice with a Quiz</TabsTrigger>
             </TabsList>
             <TabsContent value="explainer" className="mt-6">
               <QuestionExplainer />

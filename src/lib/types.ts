@@ -3,6 +3,21 @@ export type Explanation = {
   originalQuestion: string;
 };
 
+export type QuizQuestion = {
+  question: string;
+  options: string[];
+  answer: number; // 0-based index
+  explanation: string;
+};
+
 export type Quiz = {
-  quiz: string;
+  subject: string;
+  questions: QuizQuestion[];
+};
+
+export type QuizPerformance = {
+    subject: string;
+    score: number;
+    totalQuestions: number;
+    date: string; // ISO string
 };

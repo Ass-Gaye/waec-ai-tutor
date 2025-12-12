@@ -20,8 +20,16 @@ const GenerateWAECQuizInputSchema = z.object({
 
 export type GenerateWAECQuizInput = z.infer<typeof GenerateWAECQuizInputSchema>;
 
+const QuizQuestionSchema = z.object({
+  question: z.string().describe('The full text of the quiz question.'),
+  options: z.array(z.string()).describe('An array of 4 possible answers for the question.'),
+  answer: z.number().describe('The 0-based index of the correct answer in the options array.'),
+  explanation: z.string().describe('A brief explanation for why the answer is correct.'),
+});
+
 const GenerateWAECQuizOutputSchema = z.object({
-  quiz: z.string().describe('The generated WAEC-style quiz with answer key.'),
+    subject: z.string().describe('The subject of the generated quiz.'),
+    questions: z.array(QuizQuestionSchema).describe('An array of quiz questions.'),
 });
 
 export type GenerateWAECQuizOutput = z.infer<typeof GenerateWAECQuizOutputSchema>;
@@ -34,9 +42,15 @@ const prompt = ai.definePrompt({
   name: 'generateWAECQuizPrompt',
   input: {schema: GenerateWAECQuizInputSchema},
   output: {schema: GenerateWAECQuizOutputSchema},
-  prompt: `Generate a WAEC-style quiz for the subject of {{subject}} with {{numQuestions}} questions, and provide an answer key.
+  prompt: `Generate a WAEC-style quiz for the subject of {{subject}} with {{numQuestions}} questions.
+  
+  For each question, provide:
+  - The question text.
+  - 4 multiple-choice options.
+  - The 0-based index of the correct answer.
+  - A brief explanation for the correct answer.
 
-Ensure the quiz format is similar to past WAEC questions. The output should have the questions and answers. Follow it up with a comprehensive key.
+Ensure the quiz format is similar to past WAEC questions and the output is valid JSON conforming to the schema.
 `,
 });
 

@@ -1,13 +1,12 @@
 'use client';
 
 import { getQuiz } from '@/app/actions';
-import type { Quiz } from '@/lib/types';
+import type { Quiz, QuizPerformance } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, BookCopy, LoaderCircle } from 'lucide-react';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { MarkdownRenderer } from './markdown-renderer';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -15,12 +14,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from './ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Icons } from './icons';
+import { QuizTaker } from './quiz-taker';
+import { PerformanceDashboard } from './performance-dashboard';
 
 const FormSchema = z.object({
   subject: z.enum(['Maths', 'English', 'Physics', 'Chemistry', 'Biology'], {
     required_error: 'Please select a subject.',
   }),
-  numQuestions: z.coerce.number().min(1, 'At least 1 question.').max(20, 'Max 20 questions.'),
+  numQuestions: z.coerce.number().min(1, 'At least 1 question.').max(10, 'Max 10 questions.'),
 });
 
 const subjectIcons = {
@@ -35,6 +36,7 @@ export function QuizGenerator() {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [performanceHistory, setPerformanceHistory] = useState<QuizPerformance[]>([]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -47,15 +49,26 @@ export function QuizGenerator() {
     startTransition(async () => {
       const result = await getQuiz(data);
       if (result.data) {
-        setQuiz({ quiz: result.data });
+        setQuiz(result.data);
       } else {
         setError(result.error);
       }
     });
   }
+  
+  const handleQuizComplete = (result: Omit<QuizPerformance, 'date'>) => {
+    const newPerformanceRecord: QuizPerformance = {
+        ...result,
+        date: new Date().toISOString(),
+    };
+    setPerformanceHistory(prev => [...prev, newPerformanceRecord]);
+    setQuiz(null); // Return to the main quiz generator view
+  };
+
+  const hasTakenQuiz = performanceHistory.length > 0;
 
   return (
-    <>
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
@@ -63,7 +76,7 @@ export function QuizGenerator() {
             WAEC Quiz Generator
           </CardTitle>
           <CardDescription>
-            Select a subject and the number of questions to generate a practice quiz.
+            Select a subject and the number of questions to generate a practice quiz. Your progress will be tracked over time.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -104,7 +117,7 @@ export function QuizGenerator() {
                     <FormItem>
                       <FormLabel>Number of Questions</FormLabel>
                       <FormControl>
-                        <Input type="number" min="1" max="20" {...field} />
+                        <Input type="number" min="1" max="10" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -112,16 +125,14 @@ export function QuizGenerator() {
                 />
               </div>
               <Button type="submit" disabled={isPending} className="w-full">
-                {isPending ? (
-                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                ) : null}
+                {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Generate Quiz
               </Button>
             </form>
           </Form>
         </CardContent>
       </Card>
-
+      
       {isPending && (
         <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg">
             <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
@@ -138,18 +149,13 @@ export function QuizGenerator() {
         </Alert>
       )}
 
-      {quiz && (
-        <Card className="mt-6 animate-in fade-in-50 duration-500">
-            <CardHeader>
-                <CardTitle>Your Quiz is Ready!</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="prose prose-sm sm:prose-base max-w-none">
-                  <MarkdownRenderer text={quiz.quiz} />
-                </div>
-            </CardContent>
-        </Card>
+      {quiz && !isPending && (
+        <QuizTaker quiz={quiz} onComplete={handleQuizComplete} />
       )}
-    </>
+
+      {hasTakenQuiz && !quiz && !isPending && (
+        <PerformanceDashboard history={performanceHistory} />
+      )}
+    </div>
   );
 }

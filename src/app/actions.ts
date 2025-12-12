@@ -7,6 +7,7 @@ import {
 import {
   generateWAECQuiz,
   type GenerateWAECQuizInput,
+  type GenerateWAECQuizOutput
 } from '@/ai/flows/generate-waec-quiz';
 import {
   simplifyExplanationOnConfusion,
@@ -41,12 +42,12 @@ export async function getExplanation(
 
 const quizSchema = z.object({
     subject: z.enum(['Maths', 'English', 'Physics', 'Chemistry', 'Biology']),
-    numQuestions: z.coerce.number().min(1, {message: 'Please enter at least 1 question.'}).max(20, {message: 'You can generate a maximum of 20 questions at a time.'}),
+    numQuestions: z.coerce.number().min(1, {message: 'Please enter at least 1 question.'}).max(10, {message: 'You can generate a maximum of 10 questions at a time.'}),
 });
 
 export async function getQuiz(
   values: GenerateWAECQuizInput
-): Promise<{ data: string; error: null } | { data: null; error: string }> {
+): Promise<{ data: GenerateWAECQuizOutput; error: null } | { data: null; error: string }> {
   const validatedFields = quizSchema.safeParse(values);
 
   if (!validatedFields.success) {
@@ -57,7 +58,7 @@ export async function getQuiz(
 
   try {
     const result = await generateWAECQuiz({ subject: validatedFields.data.subject, numQuestions: validatedFields.data.numQuestions });
-    return { data: result.quiz, error: null };
+    return { data: result, error: null };
   } catch (error) {
     return { data: null, error: 'An error occurred while generating the quiz. Please try again.' };
   }
