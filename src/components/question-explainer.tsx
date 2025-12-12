@@ -1,10 +1,10 @@
 'use client';
 
-import { getExplanation } from '@/app/actions';
+import { getExplanation, getTranscription } from '@/app/actions';
 import type { Explanation } from '@/lib/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, LoaderCircle, Mic, Send, Sparkles } from 'lucide-react';
-import { useState, useTransition } from 'react';
+import { AlertCircle, LoaderCircle, Mic, Send, Sparkles, StopCircle } from 'lucide-react';
+import { useState, useTransition, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { ExplanationDisplay } from './explanation-display';
@@ -26,7 +26,10 @@ export function QuestionExplainer() {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isRecording, setIsRecording] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
   const { toast } = useToast();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -50,13 +53,66 @@ export function QuestionExplainer() {
     });
   }
 
+  const handleStartRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+
+      mediaRecorderRef.current.addEventListener('dataavailable', (event) => {
+        audioChunksRef.current.push(event.data);
+      });
+
+      mediaRecorderRef.current.addEventListener('stop', async () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.readAsDataURL(audioBlob);
+        reader.onloadend = async () => {
+          const base64Audio = reader.result as string;
+          setIsTranscribing(true);
+          const result = await getTranscription({ audioDataUri: base64Audio });
+          setIsTranscribing(false);
+          if (result.data) {
+            form.setValue('question', result.data);
+          } else {
+            toast({
+              variant: 'destructive',
+              title: 'Transcription failed',
+              description: result.error,
+            });
+          }
+        };
+        stream.getTracks().forEach(track => track.stop());
+      });
+
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      console.error('Error accessing microphone:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Microphone access denied',
+        description: 'Please allow microphone access in your browser settings to use this feature.',
+      });
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
   const handleMicClick = () => {
-    setIsRecording(!isRecording);
-    toast({
-        title: "Feature in development",
-        description: "Audio recording and transcription will be available soon!",
-    })
-  }
+    if (isRecording) {
+      handleStopRecording();
+    } else {
+      handleStartRecording();
+    }
+  };
+
+  const isProcessingAudio = isRecording || isTranscribing;
 
   return (
     <Card>
@@ -66,7 +122,7 @@ export function QuestionExplainer() {
           Ask a WAEC Question
         </CardTitle>
         <CardDescription>
-          Type your question below, and our AI tutor will provide a step-by-step explanation.
+          Type your question below, or use the microphone to ask it out loud.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -89,17 +145,24 @@ export function QuestionExplainer() {
               )}
             />
             <div className="flex items-center justify-between gap-2">
-                <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="icon" 
-                    onClick={handleMicClick}
-                    className={isRecording ? 'bg-destructive/20 text-destructive' : ''}
-                    aria-label={isRecording ? "Stop recording" : "Start recording"}
-                >
-                    <Mic className={`h-5 w-5 ${isRecording ? 'animate-pulse' : ''}`}/>
-                </Button>
-                <Button type="submit" disabled={isPending} className="w-full max-w-xs">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleMicClick}
+                disabled={isTranscribing}
+                className={isRecording ? 'bg-destructive/20 text-destructive' : ''}
+                aria-label={isRecording ? 'Stop recording' : 'Start recording'}
+              >
+                {isTranscribing ? (
+                  <LoaderCircle className="h-5 w-5 animate-spin" />
+                ) : isRecording ? (
+                  <StopCircle className="h-5 w-5 animate-pulse" />
+                ) : (
+                  <Mic className="h-5 w-5" />
+                )}
+              </Button>
+              <Button type="submit" disabled={isPending || isProcessingAudio} className="w-full max-w-xs">
                 {isPending ? (
                   <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
@@ -112,19 +175,19 @@ export function QuestionExplainer() {
         </Form>
 
         {isPending && (
-            <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg">
-                <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
-                <p className="font-medium text-lg">Our AI Tutor is thinking...</p>
-                <p className="text-muted-foreground">Please wait a moment while we prepare your explanation.</p>
-            </div>
+          <div className="mt-6 flex flex-col items-center justify-center gap-4 text-center p-8 border-2 border-dashed rounded-lg">
+            <LoaderCircle className="h-10 w-10 animate-spin text-primary" />
+            <p className="font-medium text-lg">Our AI Tutor is thinking...</p>
+            <p className="text-muted-foreground">Please wait a moment while we prepare your explanation.</p>
+          </div>
         )}
 
         {error && (
-            <Alert variant="destructive" className="mt-6">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-            </Alert>
+          <Alert variant="destructive" className="mt-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
       </CardContent>
 

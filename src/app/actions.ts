@@ -12,6 +12,10 @@ import {
   simplifyExplanationOnConfusion,
   type SimplifyExplanationOnConfusionInput,
 } from '@/ai/flows/simplify-explanation-on-confusion';
+import {
+    transcribeAudio,
+    type TranscribeAudioInput,
+} from '@/ai/flows/transcribe-audio';
 import { z } from 'zod';
 
 const explainSchema = z.object({
@@ -78,5 +82,24 @@ export async function getSimplifiedExplanation(
         return { data: result.simplifiedExplanation, error: null };
     } catch (error) {
         return { data: null, error: 'An error occurred while simplifying the explanation. Please try again.' };
+    }
+}
+
+const transcribeSchema = z.object({
+    audioDataUri: z.string(),
+});
+
+export async function getTranscription(
+    values: TranscribeAudioInput
+): Promise<{ data: string; error: null } | { data: null; error: string }> {
+    const validatedFields = transcribeSchema.safeParse(values);
+    if (!validatedFields.success) {
+        return { data: null, error: 'Invalid audio data.' };
+    }
+    try {
+        const result = await transcribeAudio(validatedFields.data);
+        return { data: result.text, error: null };
+    } catch (error) {
+        return { data: null, error: 'An error occurred during transcription. Please try again.' };
     }
 }
