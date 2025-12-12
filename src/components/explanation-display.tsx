@@ -75,14 +75,16 @@ export function ExplanationDisplay({ data }: ExplanationDisplayProps) {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        <MarkdownRenderer text={currentExplanation} />
+        <div className="prose prose-sm sm:prose-base max-w-none">
+          <MarkdownRenderer text={currentExplanation} />
+        </div>
       </CardContent>
-      <CardFooter className="flex flex-wrap gap-2 justify-end">
-        <Button variant="outline" onClick={handleReadAloud} disabled={isSimplifying}>
+      <CardFooter className="flex flex-col sm:flex-row gap-2 justify-end">
+        <Button variant="outline" onClick={handleReadAloud} disabled={isSimplifying} className="w-full sm:w-auto">
           <Volume2 className={`mr-2 h-4 w-4 ${isReading ? 'animate-pulse' : ''}`} />
           {isReading ? 'Stop Reading' : 'Read Aloud'}
         </Button>
-        <Button onClick={handleSimplify} disabled={isSimplifying}>
+        <Button onClick={handleSimplify} disabled={isSimplifying} className="w-full sm:w-auto">
           {isSimplifying ? (
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           ) : (

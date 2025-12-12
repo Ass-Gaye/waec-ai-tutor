@@ -58,7 +58,7 @@ export function QuizGenerator() {
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-2xl">
+          <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
             <BookCopy className="text-primary" />
             WAEC Quiz Generator
           </CardTitle>
@@ -144,7 +144,9 @@ export function QuizGenerator() {
                 <CardTitle>Your Quiz is Ready!</CardTitle>
             </CardHeader>
             <CardContent>
-                <MarkdownRenderer text={quiz.quiz} />
+                <div className="prose prose-sm sm:prose-base max-w-none">
+                  <MarkdownRenderer text={quiz.quiz} />
+                </div>
             </CardContent>
         </Card>
       )}

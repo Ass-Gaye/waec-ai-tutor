@@ -117,11 +117,11 @@ export function QuestionExplainer() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl">
+        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           <Sparkles className="text-primary" />
           Ask a WAEC Question
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Type your question below, or use the microphone to ask it out loud.
         </CardDescription>
       </CardHeader>
@@ -144,25 +144,26 @@ export function QuestionExplainer() {
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col sm:flex-row items-center gap-2">
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
                 onClick={handleMicClick}
                 disabled={isTranscribing}
-                className={isRecording ? 'bg-destructive/20 text-destructive' : ''}
+                className={`w-full sm:w-auto ${isRecording ? 'bg-destructive/20 text-destructive' : ''}`}
                 aria-label={isRecording ? 'Stop recording' : 'Start recording'}
               >
                 {isTranscribing ? (
-                  <LoaderCircle className="h-5 w-5 animate-spin" />
+                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 ) : isRecording ? (
-                  <StopCircle className="h-5 w-5 animate-pulse" />
+                  <StopCircle className="mr-2 h-4 w-4 animate-pulse" />
                 ) : (
-                  <Mic className="h-5 w-5" />
+                  <Mic className="mr-2 h-4 w-4" />
                 )}
+                <span className="sm:hidden">{isRecording ? 'Stop Recording' : 'Record Audio'}</span>
+                 <span className="hidden sm:inline">{isRecording ? 'Stop' : 'Record'}</span>
               </Button>
-              <Button type="submit" disabled={isPending || isProcessingAudio} className="w-full max-w-xs">
+              <Button type="submit" disabled={isPending || isProcessingAudio} className="w-full">
                 {isPending ? (
                   <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                 ) : (

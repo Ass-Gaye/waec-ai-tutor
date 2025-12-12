@@ -9,12 +9,12 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-body">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12">
+      <main className="flex-grow container mx-auto px-4 py-6 md:py-12">
         <div className="max-w-4xl mx-auto">
           <Tabs defaultValue="explainer" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-primary/10 rounded-lg">
-              <TabsTrigger value="explainer" className="text-base">Explain a Question</TabsTrigger>
-              <TabsTrigger value="quiz" className="text-base">Generate a Quiz</TabsTrigger>
+              <TabsTrigger value="explainer" className="text-sm sm:text-base">Explain a Question</TabsTrigger>
+              <TabsTrigger value="quiz" className="text-sm sm:text-base">Generate a Quiz</TabsTrigger>
             </TabsList>
             <TabsContent value="explainer" className="mt-6">
               <QuestionExplainer />
