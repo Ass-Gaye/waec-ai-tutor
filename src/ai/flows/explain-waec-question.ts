@@ -14,7 +14,13 @@ import {z} from 'genkit';
 const ExplainWAECQuestionInputSchema = z.object({
   question: z
     .string()
-    .describe('The WAEC question to explain. Can be text or audio transcript.'),
+    .describe('The WAEC question to explain. Can be text or from an image.'),
+  photoDataUri: z
+    .string()
+    .optional()
+    .describe(
+      "An optional photo of a question, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
 });
 export type ExplainWAECQuestionInput = z.infer<typeof ExplainWAECQuestionInputSchema>;
 
@@ -46,7 +52,11 @@ Step-by-step explanation
 Final answer
 (Optional) Tip for revision
 
-Question: {{{question}}}`,
+The user has provided the following information. The question might be in the text, in the image, or a combination of both.
+{{#if photoDataUri}}
+Photo: {{media url=photoDataUri}}
+{{/if}}
+Question Text: {{{question}}}`,
 });
 
 const explainWAECQuestionFlow = ai.defineFlow(

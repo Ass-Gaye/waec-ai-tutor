@@ -20,7 +20,8 @@ import {
 import { z } from 'zod';
 
 const explainSchema = z.object({
-  question: z.string().min(10, { message: 'Please enter a more detailed question (at least 10 characters).' }),
+  question: z.string(),
+  photoDataUri: z.string().optional(),
 });
 
 export async function getExplanation(
@@ -31,9 +32,13 @@ export async function getExplanation(
   if (!validatedFields.success) {
     return { data: null, error: validatedFields.error.flatten().fieldErrors.question?.join(', ') || 'Invalid input.' };
   }
+  
+  if (!validatedFields.data.question && !validatedFields.data.photoDataUri) {
+      return { data: null, error: 'Please enter a question or upload an image.' };
+  }
 
   try {
-    const result = await explainWAECQuestion({ question: validatedFields.data.question });
+    const result = await explainWAECQuestion(validatedFields.data);
     return { data: result.explanation, error: null };
   } catch (error) {
     return { data: null, error: 'An error occurred while generating the explanation. Please try again.' };
