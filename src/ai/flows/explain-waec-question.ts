@@ -56,7 +56,11 @@ The user has provided the following information. The question might be in the te
 {{#if photoDataUri}}
 Photo: {{media url=photoDataUri}}
 {{/if}}
-Question Text: {{{question}}}`,
+{{#if question}}
+Question Text: {{{question}}}
+{{else}}
+The user uploaded an image without additional text. Please analyze the image to identify and answer the question.
+{{/if}}`,
 });
 
 const explainWAECQuestionFlow = ai.defineFlow(
