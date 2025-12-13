@@ -12,7 +12,7 @@ import {
 import {
   simplifyExplanationOnConfusion,
   type SimplifyExplanationOnConfusionInput,
-} from '@/aiflows/simplify-explanation-on-confusion';
+} from '@/ai/flows/simplify-explanation-on-confusion';
 import {
   textToSpeech,
   type TextToSpeechInput
