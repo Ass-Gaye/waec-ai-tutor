@@ -1,9 +1,10 @@
 'use client';
 
-import { getSimplifiedExplanation } from '@/app/actions';
+import { getSimplifiedExplanation, getSpeech } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 import type { Explanation } from '@/lib/types';
-import { BrainCircuit, LoaderCircle, Volume2 } from 'lucide-react';
-import React, { useState, useTransition } from 'react';
+import { BrainCircuit, LoaderCircle, StopCircle, Volume2 } from 'lucide-react';
+import React, { useState, useTransition, useRef, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import { Button } from './ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
@@ -18,6 +19,9 @@ export function ExplanationDisplay({ data }: ExplanationDisplayProps) {
   const [error, setError] = useState<string | null>(null);
   const [isSimplifying, startSimplifying] = useTransition();
   const [isReading, setIsReading] = useState(false);
+  const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const { toast } = useToast();
 
   const handleSimplify = async () => {
     setError(null);
@@ -34,34 +38,49 @@ export function ExplanationDisplay({ data }: ExplanationDisplayProps) {
     });
   };
 
-  const handleReadAloud = () => {
-    if ('speechSynthesis' in window) {
-      const synth = window.speechSynthesis;
-      if (synth.speaking) {
-        synth.cancel();
-        setIsReading(false);
-        return;
+  const handleReadAloud = async () => {
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsReading(false);
+      return;
+    }
+
+    setIsGeneratingSpeech(true);
+    const cleanText = currentExplanation.replace(/#|##|###|\*|```[\s\S]*?```/g, '');
+
+    const result = await getSpeech({ text: cleanText });
+    setIsGeneratingSpeech(false);
+
+    if (result.data) {
+      if (!audioRef.current) {
+        audioRef.current = new Audio();
+        audioRef.current.onplay = () => setIsReading(true);
+        audioRef.current.onpause = () => setIsReading(false);
+        audioRef.current.onended = () => setIsReading(false);
       }
-      // Remove markdown for cleaner speech
-      const cleanText = currentExplanation.replace(/\*\*/g, '');
-      const utterance = new SpeechSynthesisUtterance(cleanText);
-      utterance.onstart = () => setIsReading(true);
-      utterance.onend = () => setIsReading(false);
-      utterance.onerror = () => setIsReading(false);
-      synth.speak(utterance);
+      audioRef.current.src = result.data;
+      audioRef.current.play();
     } else {
-      alert('Sorry, your browser does not support text-to-speech.');
+      toast({
+        variant: 'destructive',
+        title: 'Text-to-Speech Failed',
+        description: result.error,
+      });
     }
   };
 
-  React.useEffect(() => {
-    // Stop speech synthesis when component unmounts
+  useEffect(() => {
+    // Cleanup audio element when component unmounts
     return () => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
       }
     };
   }, []);
+
+  const isBusy = isSimplifying || isGeneratingSpeech;
 
   return (
     <Card className="mt-6 animate-in fade-in-50 duration-500 bg-card/80 border-white/10 backdrop-blur-sm">
@@ -80,11 +99,17 @@ export function ExplanationDisplay({ data }: ExplanationDisplayProps) {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row gap-2 justify-end">
-        <Button variant="outline" onClick={handleReadAloud} disabled={isSimplifying} className="w-full sm:w-auto">
-          <Volume2 className={`mr-2 h-4 w-4 ${isReading ? 'animate-pulse' : ''}`} />
-          {isReading ? 'Stop Reading' : 'Read Aloud'}
+        <Button variant="outline" onClick={handleReadAloud} disabled={isBusy} className="w-full sm:w-auto">
+          {isGeneratingSpeech ? (
+            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+          ) : isReading ? (
+            <StopCircle className="mr-2 h-4 w-4 animate-pulse" />
+          ) : (
+            <Volume2 className="mr-2 h-4 w-4" />
+          )}
+          {isGeneratingSpeech ? 'Generating...' : isReading ? 'Stop Reading' : 'Read Aloud'}
         </Button>
-        <Button onClick={handleSimplify} disabled={isSimplifying} className="w-full sm:w-auto">
+        <Button onClick={handleSimplify} disabled={isBusy} className="w-full sm:w-auto">
           {isSimplifying ? (
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
           ) : (

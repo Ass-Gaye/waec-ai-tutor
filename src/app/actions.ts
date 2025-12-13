@@ -12,7 +12,11 @@ import {
 import {
   simplifyExplanationOnConfusion,
   type SimplifyExplanationOnConfusionInput,
-} from '@/ai/flows/simplify-explanation-on-confusion';
+} from '@/aiflows/simplify-explanation-on-confusion';
+import {
+  textToSpeech,
+  type TextToSpeechInput
+} from '@/ai/flows/text-to-speech';
 import {
     transcribeAudio,
     type TranscribeAudioInput,
@@ -107,5 +111,26 @@ export async function getTranscription(
         return { data: result.text, error: null };
     } catch (error) {
         return { data: null, error: 'An error occurred during transcription. Please try again.' };
+    }
+}
+
+const ttsSchema = z.object({
+    text: z.string(),
+});
+
+export async function getSpeech(
+    values: TextToSpeechInput
+): Promise<{ data: string; error: null } | { data: null; error: string }> {
+    const validatedFields = ttsSchema.safeParse(values);
+
+    if (!validatedFields.success) {
+        return { data: null, error: 'Invalid text for speech synthesis.' };
+    }
+
+    try {
+        const result = await textToSpeech(validatedFields.data);
+        return { data: result.audioDataUri, error: null };
+    } catch (error) {
+        return { data: null, error: 'An error occurred during speech synthesis. Please try again.' };
     }
 }
