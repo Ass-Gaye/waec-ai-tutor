@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {generate} from 'genkit/generate';
 import {z} from 'genkit';
 
 const ExplainWAECQuestionInputSchema = z.object({
@@ -65,11 +66,11 @@ const explainWAECQuestionFlow = ai.defineFlow(
 
     if (input.question) {
         promptParts.push({ text: `Question Text: ${input.question}` });
-    } else if (!input.photoDataUri) {
+    } else if (input.photoDataUri) {
+        promptParts.push({ text: "The user uploaded an image without additional text. Please analyze the image to identify and answer the question." });
+    } else {
         // This case should be handled by form validation, but as a fallback:
         throw new Error('No question text or image was provided.');
-    } else {
-        promptParts.push({ text: "The user uploaded an image without additional text. Please analyze the image to identify and answer the question." });
     }
 
     const { output } = await ai.generate({
