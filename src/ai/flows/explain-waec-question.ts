@@ -9,6 +9,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {generate} from 'genkit/generate';
 import {z} from 'genkit';
 
 const ExplainWAECQuestionInputSchema = z.object({
@@ -72,14 +73,16 @@ const explainWAECQuestionFlow = ai.defineFlow(
         throw new Error('No question text or image was provided.');
     }
 
-    const { output } = await ai.generate({
+    const { output } = await generate({
         system: systemPrompt,
+        model: 'googleai/gemini-1.5-flash',
         prompt: promptParts,
         output: {
+            format: 'json',
             schema: ExplainWAECQuestionOutputSchema
         }
     });
     
-    return output!;
+    return output;
   }
 );
