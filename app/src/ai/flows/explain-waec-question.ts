@@ -9,7 +9,6 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {generate} from 'genkit/generate';
 import {z} from 'genkit';
 
 const ExplainWAECQuestionInputSchema = z.object({
